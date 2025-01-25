@@ -1,5 +1,6 @@
 from pygame import *
 from random import randint
+import time as pytime
  
 # фонова музика
 mixer.init()
@@ -24,8 +25,13 @@ clock = time.Clock()
 FPS = 30
 
 score = 0  # збито кораблів
+goal = 50 #стількі кораблів потрібно збити для виграшу
 lost = 0  # пропущено кораблів
 max_lost = 3 # програли, якщо пропустилі стільки
+life = 3
+buttet_cont = 10
+reload_start_time = None
+
 
 # клас-батько для інших спрайтів
 class GameSprite(sprite.Sprite):
@@ -118,7 +124,8 @@ while run:
             run = False
             # подія натискання на пробіл - спрайт стріляє
         elif e.type == KEYDOWN:
-            if e.key == K_SPACE:
+            if e.key == K_SPACE and buttet_cont > 0 and reload_start_time is None:
+                buttet_cont -= 1
                 fire_sound.play()
                 ship.fire()
  
@@ -142,6 +149,46 @@ while run:
         ship.reset()
         monsters.draw(window)
         bullets.draw(window)
- 
+
+        if buttet_cont == 0 and reload_start_time is None:
+            reload_start_time = pytime.time()
+        
+        if reload_start_time:
+            if pytime.time() - reload_start_time > 3:
+                buttet_cont = 10 #Повертаємо кулі
+                reload_start_time = None #Скидаємо таймер
+
+        # Перевірка зіткнення кулі та монстрів ( і монстр, і куля пропадають)
+        collides = sprite.groupcollide(monsters, bullets, True, True)
+        for collide in collides:
+            #Цей цикл повторюється стількі раз стількі монстрів збито
+            score = score + 1
+            monster = Enemy(
+                img_enemy, randint(80, win_width - 80), -40, 80, 50, randint(1, 5)
+            )
+            monsters.add(monster)
+
+        if sprite.spritecollide(ship, monsters, True):
+            life -= 1
+            monster = Enemy(
+                img_enemy, randint(80, win_width - 80), -40, 80, 50, randint(1, 5)
+            )
+            monsters.add(monster)
+
+        text_life = font1.render(str(life), 1, (255, 0, 0))
+        window.blit(text_life, (650, 10))
+
+        #Можливий програш: пропустили занадто багато або корабель зіткнувся з кораблем
+        if life == 0 or lost >= max_lost:
+            finish = True
+            mixer.music.stop()
+            window.blit(lose, (200, 200))
+
+        #Перевірка виграшу: скількі очок набрали?
+        if score >= goal:
+            finish = True
+            mixer.music.stop()
+            window.blit(win, (200, 200))
+
     display.update()
     clock.tick(FPS)
