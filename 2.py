@@ -4,10 +4,10 @@ import time as pytime
  
 # фонова музика
 mixer.init()
-mixer.music.load('space.ogg')
+mixer.music.load('assets\\sounds\\space.ogg')
 mixer.music.play()
-fire_sound = mixer.Sound('fire.ogg')
- 
+fire_sound = mixer.Sound('assets\\sounds\\fire.ogg')
+
 # шрифти і написи
 font.init()
 font1 = font.Font(None, 80)
@@ -16,10 +16,10 @@ win = font1.render('YOU WIN!', True, (255, 255, 255))
 lose = font1.render('YOU LOSE!', True, (180, 0, 0))
 
 # нам потрібні такі картинки:
-img_back = "galaxy.jpg"  # фон гри
-img_hero = "rocket.png"  # герой
-img_bullet = "cyla.png" #куля
-img_enemy = "ufo.png"  # ворог
+img_back = "assets\\pictures\\galaxy.jpg"  # фон гри
+img_hero = "assets\\pictures\\rocket.png"  # герой
+img_bullet = "assets\\pictures\\cyla.png" #куля
+img_enemy = "assets\\pictures\\ufo.png"  # ворог
 
 clock = time.Clock()
 FPS = 30
